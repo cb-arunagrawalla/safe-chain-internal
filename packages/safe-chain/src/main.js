@@ -83,7 +83,7 @@ export async function main(args) {
           "ℹ"
         )} Safe-chain: Some package versions were suppressed due to minimum age requirement.`
       );
-      ui.writeInformation(
+      ui.writeVerbose(
         `  To disable this check, use: ${chalk.cyan(
           "--safe-chain-skip-minimum-package-age"
         )}`

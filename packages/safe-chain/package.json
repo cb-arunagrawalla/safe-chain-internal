@@ -40,6 +40,7 @@
   "dependencies": {
     "certifi": "14.5.15",
     "chalk": "5.4.1",
+    "express": "^5.2.1",
     "https-proxy-agent": "7.0.6",
     "ini": "6.0.0",
     "make-fetch-happen": "15.0.3",
