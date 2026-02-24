@@ -1,5 +1,6 @@
 // oxlint-disable no-console
 import chalk from "chalk";
+import readline from "readline";
 import { isCi } from "./environment.js";
 import {
   getLoggingLevel,
@@ -110,6 +111,61 @@ function writeBufferedLogsAndStopBuffering() {
   state.bufferedMessages = [];
 }
 
+/**
+ * Prompts user for confirmation to skip minimum package age protection
+ * Shows a strongly-worded RED warning before asking for y/n input
+ * @returns {Promise<boolean>} true if user confirms, false otherwise
+ */
+async function promptSkipMinimumAgeConfirmation() {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    const warningMessage = isCi()
+      ? `⚠️  WARNING: You are about to bypass the minimum package age protection!
+
+This security feature prevents installation of packages published within the last 15 days,
+protecting you from potential supply chain attacks and malicious packages.
+
+Bypassing this protection significantly increases your risk exposure.
+
+Are you sure you want to proceed? (y/N): `
+      : `${chalk.red.bold("⚠️  WARNING:")} ${chalk.red(
+          "You are about to bypass the minimum package age protection!"
+        )}
+
+${chalk.yellow(
+  "This security feature prevents installation of packages published within the last 15 days,"
+)}
+${chalk.yellow(
+  "protecting you from potential supply chain attacks and malicious packages."
+)}
+
+${chalk.red.bold("Bypassing this protection significantly increases your risk exposure.")}
+
+Are you sure you want to proceed? (y/N): `;
+
+    rl.question(warningMessage, (answer) => {
+      rl.close();
+
+      const normalizedAnswer = answer.trim().toLowerCase();
+      if (normalizedAnswer === "y" || normalizedAnswer === "yes") {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+
+    rl.on("close", () => {
+      if (!rl.terminal) {
+        resolve(false);
+      }
+    });
+  });
+}
+
 export const ui = {
   writeVerbose,
   writeInformation,
@@ -119,4 +175,5 @@ export const ui = {
   emptyLine,
   startBufferingLogs,
   writeBufferedLogsAndStopBuffering,
+  promptSkipMinimumAgeConfirmation,
 };

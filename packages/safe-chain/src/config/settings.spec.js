@@ -19,6 +19,8 @@ const {
   LOGGING_SILENT,
   LOGGING_NORMAL,
   LOGGING_VERBOSE,
+  skipMinimumPackageAge,
+  nonInteractive,
 } = await import("./settings.js");
 const { initializeCliArguments } = await import("./cliArguments.js");
 
@@ -498,5 +500,71 @@ describe("getNpmMinimumPackageAgeExclusions", () => {
     const exclusions = getNpmMinimumPackageAgeExclusions();
 
     assert.deepStrictEqual(exclusions, ["react", "lodash"]);
+  });
+});
+
+describe("skipMinimumPackageAge", () => {
+  beforeEach(() => {
+    initializeCliArguments([]);
+  });
+
+  it("should return false by default when flag is not set", () => {
+    const result = skipMinimumPackageAge();
+
+    assert.strictEqual(result, false);
+  });
+
+  it("should return true when CLI flag is set", () => {
+    initializeCliArguments(["--safe-chain-skip-minimum-package-age"]);
+
+    const result = skipMinimumPackageAge();
+
+    assert.strictEqual(result, true);
+  });
+
+  it("should reset to false after initializing with different args", () => {
+    initializeCliArguments(["--safe-chain-skip-minimum-package-age"]);
+    assert.strictEqual(skipMinimumPackageAge(), true);
+
+    initializeCliArguments(["install", "express"]);
+    assert.strictEqual(skipMinimumPackageAge(), false);
+  });
+});
+
+describe("nonInteractive", () => {
+  beforeEach(() => {
+    initializeCliArguments([]);
+  });
+
+  it("should return false by default when flag is not set", () => {
+    const result = nonInteractive();
+
+    assert.strictEqual(result, false);
+  });
+
+  it("should return true when CLI flag is set", () => {
+    initializeCliArguments(["--safe-chain-non-interactive"]);
+
+    const result = nonInteractive();
+
+    assert.strictEqual(result, true);
+  });
+
+  it("should reset to false after initializing with different args", () => {
+    initializeCliArguments(["--safe-chain-non-interactive"]);
+    assert.strictEqual(nonInteractive(), true);
+
+    initializeCliArguments(["install", "express"]);
+    assert.strictEqual(nonInteractive(), false);
+  });
+
+  it("should work together with skipMinimumPackageAge flag", () => {
+    initializeCliArguments([
+      "--safe-chain-skip-minimum-package-age",
+      "--safe-chain-non-interactive",
+    ]);
+
+    assert.strictEqual(skipMinimumPackageAge(), true);
+    assert.strictEqual(nonInteractive(), true);
   });
 });

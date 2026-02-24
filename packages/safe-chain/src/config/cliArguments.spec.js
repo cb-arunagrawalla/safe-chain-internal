@@ -5,6 +5,7 @@ import {
   getLoggingLevel,
   getSkipMinimumPackageAge,
   getMinimumPackageAgeHours,
+  getNonInteractive,
 } from "./cliArguments.js";
 import { ui } from "../environment/userInteraction.js";
 
@@ -307,5 +308,58 @@ describe("initializeCliArguments", () => {
     } finally {
       ui.writeWarning = originalWriteWarning;
     }
+  });
+
+  it("should not set nonInteractive when flag is absent", () => {
+    const args = ["install", "express", "--save"];
+    initializeCliArguments(args);
+
+    assert.strictEqual(getNonInteractive(), undefined);
+  });
+
+  it("should set nonInteractive to true when flag is present", () => {
+    const args = ["--safe-chain-non-interactive", "install", "lodash"];
+    const result = initializeCliArguments(args);
+
+    assert.deepEqual(result, ["install", "lodash"]);
+    assert.strictEqual(getNonInteractive(), true);
+  });
+
+  it("should handle non-interactive flag case-insensitively", () => {
+    const args = ["--SAFE-CHAIN-NON-INTERACTIVE", "install"];
+    initializeCliArguments(args);
+
+    assert.strictEqual(getNonInteractive(), true);
+  });
+
+  it("should filter out non-interactive flag from returned args", () => {
+    const args = ["install", "--safe-chain-non-interactive", "express", "--save"];
+    const result = initializeCliArguments(args);
+
+    assert.deepEqual(result, ["install", "express", "--save"]);
+  });
+
+  it("should handle non-interactive with other safe-chain arguments", () => {
+    const args = [
+      "--safe-chain-logging=verbose",
+      "--safe-chain-non-interactive",
+      "--safe-chain-skip-minimum-package-age",
+      "install",
+      "lodash",
+    ];
+    const result = initializeCliArguments(args);
+
+    assert.deepEqual(result, ["install", "lodash"]);
+    assert.strictEqual(getLoggingLevel(), "verbose");
+    assert.strictEqual(getNonInteractive(), true);
+    assert.strictEqual(getSkipMinimumPackageAge(), true);
+  });
+
+  it("should handle non-interactive flag in different positions", () => {
+    const args = ["install", "lodash", "--safe-chain-non-interactive"];
+    const result = initializeCliArguments(args);
+
+    assert.deepEqual(result, ["install", "lodash"]);
+    assert.strictEqual(getNonInteractive(), true);
   });
 });

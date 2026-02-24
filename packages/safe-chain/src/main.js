@@ -7,6 +7,8 @@ import { initializeCliArguments } from "./config/cliArguments.js";
 import { createSafeChainProxy } from "./registryProxy/registryProxy.js";
 import chalk from "chalk";
 import { getAuditStats } from "./scanning/audit/index.js";
+import * as settings from "./config/settings.js";
+import { isCi } from "./environment/environment.js";
 
 /**
  * @param {string[]} args
@@ -43,6 +45,19 @@ export async function main(args) {
   try {
     // This parses all the --safe-chain arguments and removes them from the args array
     args = initializeCliArguments(args);
+
+    // Check if skip-minimum-package-age requires confirmation
+    if (
+      settings.skipMinimumPackageAge() &&
+      !settings.nonInteractive() &&
+      !isCi()
+    ) {
+      const confirmed = await ui.promptSkipMinimumAgeConfirmation();
+      if (!confirmed) {
+        ui.writeError("Installation cancelled by user.");
+        return 0;
+      }
+    }
 
     if (shouldScanCommand(args)) {
       const commandScanResult = await scanCommand(args);

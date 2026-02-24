@@ -105,6 +105,17 @@ export function skipMinimumPackageAge() {
   return defaultSkipMinimumPackageAge;
 }
 
+const defaultNonInteractive = false;
+export function nonInteractive() {
+  const cliValue = cliArguments.getNonInteractive();
+
+  if (cliValue === true) {
+    return true;
+  }
+
+  return defaultNonInteractive;
+}
+
 /**
  * Normalizes a registry URL by removing protocol if present
  * @param {string} registry

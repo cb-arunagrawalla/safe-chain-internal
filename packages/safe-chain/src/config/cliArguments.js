@@ -1,12 +1,13 @@
 import { ui } from "../environment/userInteraction.js";
 
 /**
- * @type {{loggingLevel: string | undefined, skipMinimumPackageAge: boolean | undefined, minimumPackageAgeHours: string | undefined}}
+ * @type {{loggingLevel: string | undefined, skipMinimumPackageAge: boolean | undefined, minimumPackageAgeHours: string | undefined, nonInteractive: boolean | undefined}}
  */
 const state = {
   loggingLevel: undefined,
   skipMinimumPackageAge: undefined,
   minimumPackageAgeHours: undefined,
+  nonInteractive: undefined,
 };
 
 const SAFE_CHAIN_ARG_PREFIX = "--safe-chain-";
@@ -20,6 +21,7 @@ export function initializeCliArguments(args) {
   state.loggingLevel = undefined;
   state.skipMinimumPackageAge = undefined;
   state.minimumPackageAgeHours = undefined;
+  state.nonInteractive = undefined;
 
   const safeChainArgs = [];
   const remainingArgs = [];
@@ -35,6 +37,7 @@ export function initializeCliArguments(args) {
   setLoggingLevel(safeChainArgs);
   setSkipMinimumPackageAge(safeChainArgs);
   setMinimumPackageAgeHours(safeChainArgs);
+  setNonInteractive(safeChainArgs);
   checkDeprecatedPythonFlag(args);
   return remainingArgs;
 }
@@ -107,6 +110,22 @@ function setMinimumPackageAgeHours(args) {
  */
 export function getMinimumPackageAgeHours() {
   return state.minimumPackageAgeHours;
+}
+
+/**
+ * @param {string[]} args
+ * @returns {void}
+ */
+function setNonInteractive(args) {
+  const flagName = SAFE_CHAIN_ARG_PREFIX + "non-interactive";
+
+  if (hasFlagArg(args, flagName)) {
+    state.nonInteractive = true;
+  }
+}
+
+export function getNonInteractive() {
+  return state.nonInteractive;
 }
 
 /**

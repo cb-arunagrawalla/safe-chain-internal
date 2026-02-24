@@ -228,6 +228,45 @@ export SAFE_CHAIN_NPM_MINIMUM_PACKAGE_AGE_EXCLUSIONS="@aikidosec/*"
 }
 ```
 
+### Skipping Minimum Package Age Protection
+
+You can bypass the minimum package age protection using the `--safe-chain-skip-minimum-package-age` flag. However, this significantly increases your security risk.
+
+**Interactive Mode (Local Development):**
+
+When using this flag in an interactive environment, you'll be prompted with a strongly-worded warning and asked to confirm:
+
+```shell
+npm install --safe-chain-skip-minimum-package-age
+```
+
+You'll see:
+
+```
+⚠️  WARNING: You are about to bypass the minimum package age protection!
+
+This security feature prevents installation of packages published within the last 15 days,
+protecting you from potential supply chain attacks and malicious packages.
+
+Bypassing this protection significantly increases your risk exposure.
+
+Are you sure you want to proceed? (y/N):
+```
+
+**CI/CD Environments:**
+
+In CI/CD environments (detected automatically via `CI` or `TF_BUILD` environment variables), the confirmation prompt is automatically bypassed to avoid blocking automated pipelines.
+
+**Non-Interactive Scripted Environments:**
+
+For scripted environments that aren't automatically detected as CI, use the `--safe-chain-non-interactive` flag to bypass the confirmation:
+
+```shell
+npm install --safe-chain-skip-minimum-package-age --safe-chain-non-interactive
+```
+
+**Important:** Only use these flags when absolutely necessary and ensure you understand the security implications.
+
 ## Custom Registries
 
 Configure Safe Chain to scan packages from custom or private registries.
