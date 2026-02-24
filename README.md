@@ -36,29 +36,29 @@ Installing the Aikido Safe Chain is easy with our one-line installer.
 ### Unix/Linux/macOS
 
 ```shell
-curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/install-safe-chain-internal.sh | sh
+curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/install-safe-chain-internal.sh | sh
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-iex (iwr "https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/install-safe-chain-internal.ps1" -UseBasicParsing)
+iex (iwr "https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/install-safe-chain-internal.ps1" -UseBasicParsing)
 ```
 
 ### Pinning to a specific version
 
-To install a specific version instead of the latest, replace `v1.0.0` with the version number in the URL (available from version 1.3.2 onwards):
+The installation commands above use `latest` to always get the newest version. To install a specific version instead, replace `latest` with the version tag (e.g., `v1.5.0`):
 
 **Unix/Linux/macOS:**
 
 ```shell
-curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/vx.x.x/install-safe-chain-internal.sh | sh
+curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.5.0/install-safe-chain-internal.sh | sh
 ```
 
 **Windows (PowerShell):**
 
 ```powershell
-iex (iwr "https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/vx.x.x/install-safe-chain-internal.ps1" -UseBasicParsing)
+iex (iwr "https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.5.0/install-safe-chain-internal.ps1" -UseBasicParsing)
 ```
 
 You can find all available versions on the [releases page](https://github.com/cb-arunagrawalla/safe-chain-internal/releases).
@@ -137,13 +137,13 @@ To uninstall the Aikido Safe Chain, use our one-line uninstaller:
 ### Unix/Linux/macOS
 
 ```shell
-curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/uninstall-safe-chain-internal.sh | sh
+curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/uninstall-safe-chain-internal.sh | sh
 ```
 
 ### Windows (PowerShell)
 
 ```powershell
-iex (iwr "https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/uninstall-safe-chain-internal.ps1" -UseBasicParsing)
+iex (iwr "https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/uninstall-safe-chain-internal.ps1" -UseBasicParsing)
 ```
 
 **❗Restart your terminal** after uninstalling to ensure all aliases are removed.
@@ -311,13 +311,13 @@ Use the `--ci` flag to automatically configure Aikido Safe Chain for CI/CD envir
 ### Unix/Linux/macOS (GitHub Actions, Azure Pipelines, etc.)
 
 ```shell
-curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/install-safe-chain-internal.sh | sh -s -- --ci
+curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/install-safe-chain-internal.sh | sh -s -- --ci
 ```
 
 ### Windows (Azure Pipelines, etc.)
 
 ```powershell
-iex "& { $(iwr 'https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/install-safe-chain-internal.ps1' -UseBasicParsing) } -ci"
+iex "& { $(iwr 'https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/install-safe-chain-internal.ps1' -UseBasicParsing) } -ci"
 ```
 
 ## Supported Platforms
@@ -338,7 +338,7 @@ iex "& { $(iwr 'https://github.com/cb-arunagrawalla/safe-chain-internal/releases
     cache: "npm"
 
 - name: Install safe-chain
-  run: curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/install-safe-chain-internal.sh | sh -s -- --ci
+  run: curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/install-safe-chain-internal.sh | sh -s -- --ci
 
 - name: Install dependencies
   run: npm ci
@@ -352,7 +352,7 @@ iex "& { $(iwr 'https://github.com/cb-arunagrawalla/safe-chain-internal/releases
     versionSpec: "22.x"
   displayName: "Install Node.js"
 
-- script: curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/install-safe-chain-internal.sh | sh -s -- --ci
+- script: curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/install-safe-chain-internal.sh | sh -s -- --ci
   displayName: "Install safe-chain"
 
 - script: npm ci
@@ -370,7 +370,7 @@ jobs:
     steps:
       - checkout
       - run: |
-          curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/install-safe-chain-internal.sh | sh -s -- --ci
+          curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/install-safe-chain-internal.sh | sh -s -- --ci
       - run: npm ci
 workflows:
   build_and_test:
@@ -399,7 +399,7 @@ pipeline {
           set -euo pipefail
 
           # Install Safe Chain for CI
-          curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/download/v1.0.0/install-safe-chain-internal.sh | sh -s -- --ci
+          curl -fsSL https://github.com/cb-arunagrawalla/safe-chain-internal/releases/latest/download/install-safe-chain-internal.sh | sh -s -- --ci
         '''
       }
     }
