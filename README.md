@@ -216,6 +216,13 @@ You can set the minimum package age through multiple sources (in order of priori
 
 Exclude trusted packages from minimum age filtering via environment variable or config file (both are merged). Use `@scope/*` to trust all packages from an organization:
 
+**Default Exclusions:**
+The following packages are excluded by default:
+- `chargebee` - Chargebee npm package
+- `@chargebee/*` - All Chargebee scoped packages
+
+**Additional Exclusions via Environment Variable:**
+
 ```shell
 export SAFE_CHAIN_NPM_MINIMUM_PACKAGE_AGE_EXCLUSIONS="@aikidosec/*"
 ```

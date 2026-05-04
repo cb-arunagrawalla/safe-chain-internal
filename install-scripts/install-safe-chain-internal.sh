@@ -12,7 +12,7 @@ set -e  # Exit on error
 # Configuration - UPDATE THIS FOR YOUR INTERNAL REPO
 VERSION="${SAFE_CHAIN_VERSION:-}"  # Will be fetched from latest release if not set
 INSTALL_DIR="${HOME}/.safe-chain/bin"
-REPO_URL="https://github.com/YOUR-ORG/YOUR-REPO"  # CHANGE THIS to your internal repo URL
+REPO_URL="https://github.com/cb-arunagrawalla/safe-chain-internal"
 
 # Colors for output
 RED='\033[0;31m'
@@ -99,24 +99,40 @@ is_version_installed() {
 # Fetch latest release version tag from GitHub
 fetch_latest_version() {
     # Try using GitHub API to get the latest release tag
+    # For private repos, use GitHub CLI if available, otherwise require token
+    if command_exists gh; then
+        latest_version=$(gh release list --repo "$(echo $REPO_URL | sed 's|https://github.com/||')" --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null)
+        if [ -n "$latest_version" ]; then
+            echo "$latest_version"
+            return
+        fi
+    fi
+    
+    # Try using GitHub API with authentication if GITHUB_TOKEN is set
+    local api_url="https://api.github.com/repos/$(echo $REPO_URL | sed 's|https://github.com/||')/releases/latest"
+    
     if command_exists curl; then
-        latest_version=$(curl -fsSL "${REPO_URL}/releases/latest" | grep -oE 'tag/[^"]+' | sed 's/tag\///' | head -1)
-        # Alternative: Use GitHub API if releases/latest redirect doesn't work
-        if [ -z "$latest_version" ]; then
-            latest_version=$(curl -fsSL "https://api.github.com/repos/$(echo $REPO_URL | sed 's|https://github.com/||')/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        if [ -n "$GITHUB_TOKEN" ]; then
+            latest_version=$(curl -fsSL -H "Authorization: token $GITHUB_TOKEN" "$api_url" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        else
+            # Try without auth (will fail for private repos)
+            latest_version=$(curl -fsSL "$api_url" 2>/dev/null | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
         fi
     elif command_exists wget; then
-        latest_version=$(wget -qO- "${REPO_URL}/releases/latest" | grep -oE 'tag/[^"]+' | sed 's/tag\///' | head -1)
-        # Alternative: Use GitHub API
-        if [ -z "$latest_version" ]; then
-            latest_version=$(wget -qO- "https://api.github.com/repos/$(echo $REPO_URL | sed 's|https://github.com/||')/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        if [ -n "$GITHUB_TOKEN" ]; then
+            latest_version=$(wget -qO- --header="Authorization: token $GITHUB_TOKEN" "$api_url" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+        else
+            latest_version=$(wget -qO- "$api_url" 2>/dev/null | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
         fi
     else
         error "Neither curl nor wget found. Please install one of them or set SAFE_CHAIN_VERSION environment variable."
     fi
 
     if [ -z "$latest_version" ]; then
-        error "Failed to fetch latest version from GitHub. Please set SAFE_CHAIN_VERSION environment variable."
+        error "Failed to fetch latest version from GitHub. For private repos, either:
+  1. Install GitHub CLI (gh) and authenticate: gh auth login
+  2. Set GITHUB_TOKEN environment variable
+  3. Set SAFE_CHAIN_VERSION environment variable to the version you want to install"
     fi
 
     echo "$latest_version"
@@ -127,12 +143,45 @@ download() {
     url="$1"
     dest="$2"
 
-    if command_exists curl; then
-        curl -fsSL "$url" -o "$dest" || error "Failed to download from $url"
-    elif command_exists wget; then
-        wget -q "$url" -O "$dest" || error "Failed to download from $url"
+    # For private repos, try GitHub CLI first if available
+    if command_exists gh; then
+        # Extract repo and asset name from URL
+        # URL format: https://github.com/ORG/REPO/releases/download/VERSION/ASSET
+        if echo "$url" | grep -q "github.com.*releases/download"; then
+            repo=$(echo "$url" | sed -E 's|https://github.com/([^/]+/[^/]+)/releases/download/.*|\1|')
+            version=$(echo "$url" | sed -E 's|.*/releases/download/([^/]+)/.*|\1|')
+            asset=$(echo "$url" | sed -E 's|.*/releases/download/[^/]+/(.*)|\1|')
+            
+            if gh release download "$version" --repo "$repo" --pattern "$asset" --dir "$(dirname "$dest")" --clobber 2>/dev/null; then
+                mv "$(dirname "$dest")/$asset" "$dest" 2>/dev/null || true
+                if [ -f "$dest" ]; then
+                    return 0
+                fi
+            fi
+        fi
+    fi
+
+    # Fallback to curl/wget (will work for public repos or with GITHUB_TOKEN)
+    if [ -n "$GITHUB_TOKEN" ]; then
+        if command_exists curl; then
+            curl -fsSL -H "Authorization: token $GITHUB_TOKEN" "$url" -o "$dest" || error "Failed to download from $url"
+        elif command_exists wget; then
+            wget -q --header="Authorization: token $GITHUB_TOKEN" "$url" -O "$dest" || error "Failed to download from $url"
+        else
+            error "Neither curl nor wget found. Please install one of them."
+        fi
     else
-        error "Neither curl nor wget found. Please install one of them."
+        if command_exists curl; then
+            curl -fsSL "$url" -o "$dest" || error "Failed to download from $url. For private repos, either:
+  1. Install GitHub CLI (gh) and authenticate: gh auth login
+  2. Set GITHUB_TOKEN environment variable"
+        elif command_exists wget; then
+            wget -q "$url" -O "$dest" || error "Failed to download from $url. For private repos, either:
+  1. Install GitHub CLI (gh) and authenticate: gh auth login
+  2. Set GITHUB_TOKEN environment variable"
+        else
+            error "Neither curl nor wget found. Please install one of them."
+        fi
     fi
 }
 

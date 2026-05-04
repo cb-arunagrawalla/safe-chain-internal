@@ -197,15 +197,22 @@ function parseExclusionsFromEnv(envValue) {
 
 /**
  * Gets the minimum package age exclusions from both environment variable and config file (merged)
+ * Also includes default exclusions that are always applied
  * @returns {string[]}
  */
 export function getNpmMinimumPackageAgeExclusions() {
+  // Default exclusions that are always applied
+  const defaultExclusions = [
+    "chargebee",
+    "@chargebee/*"
+  ];
+  
   const envExclusions = parseExclusionsFromEnv(
     environmentVariables.getNpmMinimumPackageAgeExclusions()
   );
   const configExclusions = configFile.getNpmMinimumPackageAgeExclusions();
 
-  // Merge both sources and remove duplicates
-  const allExclusions = [...envExclusions, ...configExclusions];
+  // Merge all sources (defaults + env + config) and remove duplicates
+  const allExclusions = [...defaultExclusions, ...envExclusions, ...configExclusions];
   return [...new Set(allExclusions)];
 }
