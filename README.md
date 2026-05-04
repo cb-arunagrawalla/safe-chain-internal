@@ -7,7 +7,7 @@
 
 - ✅ **Block malware on developer laptops and CI/CD**
 - ✅ **Supports npm and PyPI** more package managers coming
-- ✅ **Blocks packages newer than 24 hours** without breaking your build
+- ✅ **Blocks packages newer than 15 days** without breaking your build
 - ✅ **Tokenless, free, no build data shared**
 
 Aikido Safe Chain supports the following package managers:
@@ -114,7 +114,7 @@ The Aikido Safe Chain works by running a lightweight proxy server that intercept
 
 ### Minimum package age (npm only)
 
-For npm packages, Safe Chain temporarily suppresses packages published within the last 24 hours (by default) until they have been validated against malware. This provides an additional security layer during the critical period when newly published packages are most vulnerable to containing undetected threats. You can configure this threshold or bypass this protection entirely - see the [Minimum Package Age Configuration](#minimum-package-age) section below.
+For npm packages, Safe Chain temporarily suppresses packages published within the last 15 days (360 hours by default) until they have been validated against malware. This provides an additional security layer during the critical period when newly published packages are most vulnerable to containing undetected threats. You can configure this threshold or bypass this protection entirely - see the [Minimum Package Age Configuration](#minimum-package-age) section below.
 
 ⚠️ This feature **only applies to npm-based package managers** (npm, npx, yarn, pnpm, pnpx, bun, bunx) and does not apply to Python package managers (uv, pip, pip3, poetry, pipx).
 
@@ -185,7 +185,7 @@ You can set the logging level through multiple sources (in order of priority):
 
 ## Minimum Package Age
 
-You can configure how long packages must exist before Safe Chain allows their installation. By default, packages must be at least 24 hours old before they can be installed through npm-based package managers.
+You can configure how long packages must exist before Safe Chain allows their installation. By default, packages must be at least 15 days old (360 hours) before they can be installed through npm-based package managers.
 
 ### Configuration Options
 
